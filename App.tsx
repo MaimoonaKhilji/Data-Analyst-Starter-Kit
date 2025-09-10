@@ -42,7 +42,11 @@ const loadInitialState = (course: CourseKey) => {
     const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (savedState) {
       const parsedState = JSON.parse(savedState);
-      if (typeof parsedState.currentConceptIndex === 'number' && typeof parsedState.userAnswers === 'object') {
+      const conceptsForCourse = COURSES[course];
+      // Validate that the saved index is within the bounds of the course's concepts
+      if (typeof parsedState.currentConceptIndex === 'number' && 
+          typeof parsedState.userAnswers === 'object' &&
+          parsedState.currentConceptIndex < conceptsForCourse.length) {
         return parsedState;
       }
     }
@@ -61,14 +65,6 @@ const App: React.FC = () => {
   const [currentConceptIndex, setCurrentConceptIndex] = useState<number>(() => loadInitialState(activeCourse).currentConceptIndex);
   const [userAnswers, setUserAnswers] = useState<UserAnswers>(() => loadInitialState(activeCourse).userAnswers);
 
-  // Effect to load state when course changes
-  useEffect(() => {
-    const savedState = loadInitialState(activeCourse);
-    setCurrentConceptIndex(savedState.currentConceptIndex);
-    setUserAnswers(savedState.userAnswers);
-    setView('learn'); // Reset to learn view on course change
-  }, [activeCourse]);
-
   // Effect to save progress when state for the current course changes
   useEffect(() => {
     const LOCAL_STORAGE_KEY = `${activeCourse}ForAnalystsProgress`;
@@ -79,6 +75,16 @@ const App: React.FC = () => {
       console.error(`Failed to save progress for ${activeCourse}:`, error);
     }
   }, [currentConceptIndex, userAnswers, activeCourse]);
+
+  const handleCourseChange = (newCourse: CourseKey) => {
+    if (newCourse === activeCourse) return;
+
+    const savedState = loadInitialState(newCourse);
+    setActiveCourse(newCourse);
+    setCurrentConceptIndex(savedState.currentConceptIndex);
+    setUserAnswers(savedState.userAnswers);
+    setView('learn');
+  };
 
   const currentConcepts = COURSES[activeCourse];
   const totalConcepts = currentConcepts.length;
@@ -136,7 +142,9 @@ const App: React.FC = () => {
   const numberConceptsMastered = currentConcepts.reduce((acc, concept, index) => {
     const answersForConcept = userAnswers[index] || {};
     const correctAnswersCount = Object.values(answersForConcept).filter(a => a.isCorrect).length;
-    if (concept.quiz.length > 0 && correctAnswersCount === concept.quiz.length) {
+    // A concept is mastered if all its quiz questions are answered correctly.
+    // This also correctly handles concepts with no quiz, as 0 === 0.
+    if (correctAnswersCount === concept.quiz.length) {
       return acc + 1;
     }
     return acc;
@@ -151,7 +159,7 @@ const App: React.FC = () => {
   
   const totalQuestions = currentConcepts.reduce((acc, concept) => acc + concept.quiz.length, 0);
 
-  const isCourseCompleted = view === 'learn' && currentConceptIndex === totalConcepts - 1 && isCurrentConceptMastered;
+  const isCourseCompleted = view === 'learn' && numberConceptsMastered === totalConcepts && totalConcepts > 0;
 
   const getNavButtonClass = (buttonView: 'learn' | 'glossary') => {
     const baseClass = "px-4 py-2 rounded-md font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white";
@@ -189,10 +197,10 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-x-2">
                         <span className="font-semibold text-slate-300">Select Course:</span>
                         <div className="flex flex-wrap items-center gap-2 rounded-lg p-1">
-                           <button className={getCourseButtonClass('excel')} onClick={() => setActiveCourse('excel')}>Excel</button>
-                           <button className={getCourseButtonClass('powerbi')} onClick={() => setActiveCourse('powerbi')}>Power BI</button>
-                           <button className={getCourseButtonClass('python')} onClick={() => setActiveCourse('python')}>Python</button>
-                           <button className={getCourseButtonClass('sql')} onClick={() => setActiveCourse('sql')}>SQL</button>
+                           <button className={getCourseButtonClass('excel')} onClick={() => handleCourseChange('excel')}>Excel</button>
+                           <button className={getCourseButtonClass('powerbi')} onClick={() => handleCourseChange('powerbi')}>Power BI</button>
+                           <button className={getCourseButtonClass('python')} onClick={() => handleCourseChange('python')}>Python</button>
+                           <button className={getCourseButtonClass('sql')} onClick={() => handleCourseChange('sql')}>SQL</button>
                         </div>
                     </div>
                     {view === 'learn' && (
