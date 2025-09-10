@@ -115,7 +115,7 @@ const App: React.FC = () => {
 
   const handlePrev = () => {
     if (currentConceptIndex > 0) {
-      setCurrentConceptIndex(prev => prev + 1);
+      setCurrentConceptIndex(prev => prev - 1);
     }
   };
   
@@ -124,9 +124,13 @@ const App: React.FC = () => {
   };
 
   const handleRestart = () => {
-    setCurrentConceptIndex(0);
-    setUserAnswers({});
-    setView('learn');
+    if (window.confirm('Are you sure you want to reset your progress for this course? This action cannot be undone.')) {
+      const LOCAL_STORAGE_KEY = `${activeCourse}ForAnalystsProgress`;
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      setCurrentConceptIndex(0);
+      setUserAnswers({});
+      setView('learn');
+    }
   };
 
   const numberConceptsMastered = currentConcepts.reduce((acc, concept, index) => {
@@ -181,14 +185,24 @@ const App: React.FC = () => {
               </div>
             </div>
              <div className="mt-6 pt-4 border-t border-slate-700">
-                <div className="flex items-center gap-x-2">
-                    <span className="font-semibold text-slate-300">Select Course:</span>
-                    <div className="flex flex-wrap items-center gap-2 rounded-lg p-1">
-                       <button className={getCourseButtonClass('excel')} onClick={() => setActiveCourse('excel')}>Excel</button>
-                       <button className={getCourseButtonClass('powerbi')} onClick={() => setActiveCourse('powerbi')}>Power BI</button>
-                       <button className={getCourseButtonClass('python')} onClick={() => setActiveCourse('python')}>Python</button>
-                       <button className={getCourseButtonClass('sql')} onClick={() => setActiveCourse('sql')}>SQL</button>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-x-2">
+                        <span className="font-semibold text-slate-300">Select Course:</span>
+                        <div className="flex flex-wrap items-center gap-2 rounded-lg p-1">
+                           <button className={getCourseButtonClass('excel')} onClick={() => setActiveCourse('excel')}>Excel</button>
+                           <button className={getCourseButtonClass('powerbi')} onClick={() => setActiveCourse('powerbi')}>Power BI</button>
+                           <button className={getCourseButtonClass('python')} onClick={() => setActiveCourse('python')}>Python</button>
+                           <button className={getCourseButtonClass('sql')} onClick={() => setActiveCourse('sql')}>SQL</button>
+                        </div>
                     </div>
+                    {view === 'learn' && (
+                      <button
+                        onClick={handleRestart}
+                        className="px-3 py-1.5 rounded-md font-semibold text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-white bg-red-600 text-white hover:bg-red-700"
+                        >
+                        Reset Progress
+                      </button>
+                    )}
                 </div>
             </div>
           </header>
