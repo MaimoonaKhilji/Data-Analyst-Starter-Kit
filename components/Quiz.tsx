@@ -60,6 +60,13 @@ const Quiz: React.FC<QuizProps> = ({ quizzes, onAnswerSubmit, conceptUserAnswers
     }
   }
 
+  const handlePrevQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+      setSelectedOption(null);
+    }
+  }
+  
   const getButtonClass = (option: string) => {
     const baseClass = "w-full text-left p-4 rounded-lg border-2 transition-all duration-200 text-slate-700 font-medium";
     
@@ -102,6 +109,7 @@ const Quiz: React.FC<QuizProps> = ({ quizzes, onAnswerSubmit, conceptUserAnswers
               onClick={() => handleOptionClick(option)}
               className={getButtonClass(option)}
               disabled={isSubmitted}
+              aria-pressed={selectedOption === option}
             >
               {option}
             </button>
@@ -136,14 +144,22 @@ const Quiz: React.FC<QuizProps> = ({ quizzes, onAnswerSubmit, conceptUserAnswers
             {isSubmitted && isCorrect ? (
               <>
                 {/* CORRECT ANSWER BUTTONS */}
-                {!isQuizCompleted && currentQuestionIndex < quizzes.length - 1 && (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handlePrevQuestion}
+                    disabled={currentQuestionIndex === 0}
+                    className="w-full bg-slate-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-slate-600 focus:outline-none focus:ring-4 focus:ring-slate-300 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all duration-300"
+                  >
+                    Previous
+                  </button>
                   <button
                     onClick={handleNextQuestion}
-                    className="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-300"
+                    disabled={currentQuestionIndex >= quizzes.length - 1}
+                    className="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all duration-300"
                   >
-                    Next Question
+                    Next
                   </button>
-                )}
+                </div>
                 <button
                   onClick={handleRetry}
                   className="w-full bg-slate-200 text-slate-700 font-bold py-3 px-4 rounded-lg hover:bg-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-300 transition-all duration-300"
