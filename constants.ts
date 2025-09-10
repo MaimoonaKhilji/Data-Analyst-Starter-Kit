@@ -41,12 +41,14 @@ export const EXCEL_CONCEPTS: ExcelConcept[] = [
         correctAnswer: 'Ctrl + A',
         explanation: '"Ctrl + A" is a powerful shortcut to select the current contiguous block of data, or the entire worksheet if the active cell is not in a data block.',
       },
+
       {
-        question: 'How do you move to the very last used cell on a worksheet?',
-        options: [ 'End key', 'Ctrl + Arrow Down', 'Ctrl + End', 'Ctrl + Home' ],
-        correctAnswer: 'Ctrl + End',
-        explanation: '"Ctrl + End" is the most reliable way to navigate to the bottom-rightmost cell that has been used in the worksheet.',
-      },
+  question: 'Which shortcut selects the entire row of the active cell?',
+  options: [ 'Shift + Space', 'Ctrl + Space', 'Ctrl + A', 'Ctrl + Shift + Arrow' ],
+  correctAnswer: 'Shift + Space',
+  explanation: '"Shift + Space" selects the entire row, while "Ctrl + Space" selects the entire column. These two are often confused by beginners.'
+},
+
       {
         question: 'Which shortcut opens the "Format Cells" dialog box?',
         options: [ 'Ctrl + F', 'Alt + H', 'Ctrl + 1', 'Ctrl + P' ],
