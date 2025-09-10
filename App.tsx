@@ -261,7 +261,7 @@ const App: React.FC = () => {
           </div>
         </div>
         <footer className="text-center mt-6 text-sm text-slate-500">
-          <p>Data Analyst Learning Hub | Built with React, TypeScript, and Tailwind CSS.</p>
+          <p>Data Analyst Starter Kit | The ultimate toolkit for analysts.</p>
         </footer>
       </main>
     </div>
